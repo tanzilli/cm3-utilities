@@ -1,7 +1,13 @@
+# Documentazione comandi DALI
+# http://www.tanzolab.it/www/CM3-HOME_test/dali_commands.pdf
+
 import RPi.GPIO as GPIO
 import time
 
 BIT_DELAY=0.00034
+
+#GPIO line used
+GPIO_TX_LINE=31
 
 def send_start():
     global BIT_DELAY
@@ -55,8 +61,46 @@ def send_value(value):
 			#print "send 1"
 		value=value<<1
 
-#GPIO used
-GPIO_TX_LINE=31
+def send_short_address(addr):
+	global BIT_DELAY
+	global GPIO_TX_LINE
+
+	# Send first byte
+	send_0() # Y=0 Short Address
+	
+	# Send 6 bit address. Most first
+	if addr & 0x20:
+		send_1()
+	else:
+		send_0()
+
+	if addr & 0x10:
+		send_1()
+	else:
+		send_0()
+
+	if addr & 0x8:
+		send_1()
+	else:
+		send_0()
+
+	if addr & 0x4:
+		send_1()
+	else:
+		send_0()
+		
+	if addr & 0x2:
+		send_1()
+	else:
+		send_0()
+	
+	if addr & 0x1:
+		send_1()
+	else:
+		send_0()
+	
+	send_0() # A=0 Direct arc power level
+
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -65,56 +109,115 @@ GPIO.setup(GPIO_TX_LINE,GPIO.OUT)
 # Initial state
 GPIO.output(GPIO_TX_LINE,GPIO.HIGH)
 
-for i in range(255):
-	print i
-	
-	#Start bit 
-	send_start()
+send_start()
+send_short_address(22)
+send_value(0)
+send_stop()
+send_stop()
+time.sleep(0.001)
 
-	#Send first byte
-	send_0() # Y=0 Short Address
-	send_0() # Address 2
-	send_0()
-	send_0()
-	send_0()
-	send_1() 
-	send_0()
-	send_0() # A=0 Direct arc power level
+send_start()
+send_short_address(23)
+send_value(0)
+send_stop()
+send_stop()
+time.sleep(0.001)
 
-	#Data bit
-	send_value(i)
+send_start()
+send_short_address(24)
+send_value(0)
+send_stop()
+send_stop()
+time.sleep(0.001)
 
-	#2 stop bits
-	send_stop()
-	send_stop()
-	
-	time.sleep(0.001)
+send_start()
+send_short_address(25)
+send_value(0)
+send_stop()
+send_stop()
 
-for i in range(255,-1,-1):
-	print i
-	
-	#Start bit 
-	send_start()
+time.sleep(0.001)
 
-	#Send first byte
-	send_0() # Y=0 Short Address
-	send_0() # Address 2
-	send_0()
-	send_0()
-	send_0()
-	send_1() 
-	send_0()
-	send_0() # A=0 Direct arc power level
+LED_GREEN=22
+LED_RED=23
+LED_BLUE=24
 
-	#Data bit
-	send_value(i)
+for i in range(5):
+	for i in range(0,255,3):
+		send_start()
+		send_short_address(LED_GREEN)
+		send_value(i)
+		send_stop()
+		send_stop()
+		time.sleep(0.001)
 
-	#2 stop bits
-	send_stop()
-	send_stop()
-	
-	time.sleep(0.001)
+	for i in range(255,5,-3):
+		send_start()
+		send_short_address(LED_GREEN)
+		send_value(i)
+		send_stop()
+		send_stop()
+		time.sleep(0.001)
 
+	for i in range(0,255,3):
+		send_start()
+		send_short_address(LED_RED)
+		send_value(i)
+		send_stop()
+		send_stop()
+		time.sleep(0.001)
 
-#Final state
+	for i in range(255,5,-3):
+		send_start()
+		send_short_address(LED_RED)
+		send_value(i)
+		send_stop()
+		send_stop()
+		time.sleep(0.001)
+
+	for i in range(0,255,3):
+		send_start()
+		send_short_address(LED_BLUE)
+		send_value(i)
+		send_stop()
+		send_stop()
+		time.sleep(0.001)
+
+	for i in range(255,5,-3):
+		send_start()
+		send_short_address(LED_BLUE)
+		send_value(i)
+		send_stop()
+		send_stop()
+		time.sleep(0.001)
+
+		#Final state 
+		GPIO.output(GPIO_TX_LINE,GPIO.HIGH)
+
+# Turn-off the led strip
+send_start()
+send_short_address(LED_GREEN)
+send_value(0)
+send_stop()
+send_stop()
+time.sleep(0.001)
+
+send_start()
+send_short_address(LED_RED)
+send_value(0)
+send_stop()
+send_stop()
+time.sleep(0.001)
+
+send_start()
+send_short_address(LED_BLUE)
+send_value(0)
+send_stop()
+send_stop()
+time.sleep(0.001)
+
+#Final state 
 GPIO.output(GPIO_TX_LINE,GPIO.HIGH)
+
+
+
