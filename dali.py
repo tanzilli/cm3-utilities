@@ -1,8 +1,10 @@
+#!/usr/bin/python
 # Documentazione comandi DALI
 # http://www.tanzolab.it/www/CM3-HOME_test/dali_commands.pdf
 
 import RPi.GPIO as GPIO
 import time
+import sys
 
 BIT_DELAY=0.00034
 
@@ -17,7 +19,6 @@ def send_start():
     time.sleep(BIT_DELAY)
     GPIO.output(GPIO_TX_LINE,GPIO.HIGH)
     time.sleep(BIT_DELAY)
-
 
 def send_1():
     global BIT_DELAY
@@ -109,6 +110,7 @@ GPIO.setup(GPIO_TX_LINE,GPIO.OUT)
 # Initial state
 GPIO.output(GPIO_TX_LINE,GPIO.HIGH)
 
+
 send_start()
 send_short_address(22)
 send_value(0)
@@ -142,82 +144,70 @@ LED_GREEN=22
 LED_RED=23
 LED_BLUE=24
 
-for i in range(5):
-	for i in range(0,255,3):
-		send_start()
-		send_short_address(LED_GREEN)
-		send_value(i)
-		send_stop()
-		send_stop()
-		time.sleep(0.001)
+#Demo mode
+if len(sys.argv)==1:
+	print "Demo mode"
+	print "Add --help for the command syntax"
+	
+	for i in range(1):
+		for i in range(0,255,1):
+			send_start()
+			send_short_address(LED_RED)
+			send_value(i)
+			send_stop()
+			send_stop()
+			time.sleep(0.001)
+			
+		for i in range(255,-1,-1):
+			send_start()
+			send_short_address(LED_RED)
+			send_value(i)
+			send_stop()
+			send_stop()
+			time.sleep(0.001)
 
-	for i in range(255,5,-3):
-		send_start()
-		send_short_address(LED_GREEN)
-		send_value(i)
-		send_stop()
-		send_stop()
-		time.sleep(0.001)
+		for i in range(0,255,1):
+			send_start()
+			send_short_address(LED_GREEN)
+			send_value(i)
+			send_stop()
+			send_stop()
+			time.sleep(0.001)
 
-	for i in range(0,255,3):
-		send_start()
-		send_short_address(LED_RED)
-		send_value(i)
-		send_stop()
-		send_stop()
-		time.sleep(0.001)
+		for i in range(255,-1,-1):
+			send_start()
+			send_short_address(LED_GREEN)
+			send_value(i)
+			send_stop()
+			send_stop()
+			time.sleep(0.001)
 
-	for i in range(255,5,-3):
-		send_start()
-		send_short_address(LED_RED)
-		send_value(i)
-		send_stop()
-		send_stop()
-		time.sleep(0.001)
+		for i in range(0,255,1):
+			send_start()
+			send_short_address(LED_BLUE)
+			send_value(i)
+			send_stop()
+			send_stop()
+			time.sleep(0.001)
 
-	for i in range(0,255,3):
-		send_start()
-		send_short_address(LED_BLUE)
-		send_value(i)
-		send_stop()
-		send_stop()
-		time.sleep(0.001)
+		for i in range(255,-1,-1):
+			send_start()
+			send_short_address(LED_BLUE)
+			send_value(i)
+			send_stop()
+			send_stop()
+			time.sleep(0.001)
 
-	for i in range(255,5,-3):
-		send_start()
-		send_short_address(LED_BLUE)
-		send_value(i)
-		send_stop()
-		send_stop()
-		time.sleep(0.001)
+			#Final state 
+			GPIO.output(GPIO_TX_LINE,GPIO.HIGH)
 
-		#Final state 
-		GPIO.output(GPIO_TX_LINE,GPIO.HIGH)
+if len(sys.argv)==2 and sys.argv[1]:
+	print "daly.py -r=(0-255) -g=(0-255) -b=(0-255)"
 
-# Turn-off the led strip
-send_start()
-send_short_address(LED_GREEN)
-send_value(0)
-send_stop()
-send_stop()
-time.sleep(0.001)
-
-send_start()
-send_short_address(LED_RED)
-send_value(0)
-send_stop()
-send_stop()
-time.sleep(0.001)
-
-send_start()
-send_short_address(LED_BLUE)
-send_value(0)
-send_stop()
-send_stop()
-time.sleep(0.001)
+if len(sys.argv)==4:
+	print sys.argv[1]
+	print sys.argv[2]
+	print sys.argv[3]
 
 #Final state 
 GPIO.output(GPIO_TX_LINE,GPIO.HIGH)
-
-
-
